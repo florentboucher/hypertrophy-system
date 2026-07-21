@@ -163,11 +163,11 @@
   <div class="seclabel">Répartition</div>
   <div class="card">
     <div class="row">
-      <label>Protéines<span class="hint">grammes par kg de poids</span></label>
+      <label>Protéines<span class="hint">grammes par kg de masse maigre</span></label>
       <div class="fieldwrap"><input id="n_prot" type="number" inputmode="decimal" placeholder="2"><span class="unit">g/kg</span></div>
     </div>
     <div class="row">
-      <label>Lipides<span class="hint">grammes par kg de poids</span></label>
+      <label>Lipides<span class="hint">grammes par kg de masse maigre</span></label>
       <div class="fieldwrap"><input id="n_lip" type="number" inputmode="decimal" placeholder="0,7"><span class="unit">g/kg</span></div>
     </div>
     <div class="row">
@@ -556,13 +556,13 @@ function renderNutrition(){
     res.innerHTML=`<div class="results empty"><div style="font-size:15px">Renseigne d'abord ton <b>Profil</b> (poids, masse grasse, activité) — tes macros se calculent à partir de ta maintenance.</div></div>`;
     return;
   }
-  const weight=m.weight;
+  const ffm=m.ffm;
   const setKcal=numEl("n_kcal");
   const target=setKcal!=null?setKcal:m.tdee;
   const prR=numEl("n_prot")!=null?numEl("n_prot"):2;
   const liR=numEl("n_lip")!=null?numEl("n_lip"):0.7;
-  const protG=prR*weight, protK=protG*4;
-  const lipG=liR*weight, lipK=lipG*9;
+  const protG=prR*ffm, protK=protG*4;
+  const lipG=liR*ffm, lipK=lipG*9;
   let carbK=target-protK-lipK; const neg=carbK<0; if(neg) carbK=0;
   const carbG=carbK/4;
   const meals=NUTRI.meals||3;
