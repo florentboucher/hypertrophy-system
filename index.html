@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hypertrophy">
+<title>Hypertrophy System</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1c2330; --line:#2a3441;
+    --txt:#e6edf3; --dim:#8b98a9; --accent:#f97316; --accent2:#22c55e;
+    --blue:#3b82f6;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding-bottom:env(safe-area-inset-bottom);
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    position:sticky; top:0; z-index:20; background:rgba(13,17,23,.92);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+    padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;
+  }
+  h1{font-size:16px; margin:0 0 2px; letter-spacing:.3px}
+  h1 span{color:var(--accent)}
+  .blockline{font-size:12px; color:var(--dim); margin-bottom:8px}
+  .weeks{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none}
+  .weeks::-webkit-scrollbar{display:none}
+  .wk{
+    flex:0 0 auto; width:38px; height:38px; border-radius:11px;
+    border:1px solid var(--line); background:var(--card);
+    color:var(--dim); font-size:14px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    position:relative;
+  }
+  .wk.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .wk .dot{position:absolute; bottom:4px; width:4px; height:4px; border-radius:50%; background:var(--accent2)}
+  .wk.active .dot{background:#fff}
+  main{padding:12px 12px 40px; max-width:640px; margin:0 auto}
+  .session{margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:var(--card); overflow:hidden}
+  .shead{
+    display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer;
+    user-select:none;
+  }
+  .sbadge{
+    flex:0 0 auto; width:30px; height:30px; border-radius:9px; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center; background:var(--card2); color:var(--accent);
+  }
+  .stitle{flex:1; font-size:15px; font-weight:600}
+  .ssub{font-size:11.5px; color:var(--dim); font-weight:400}
+  .chev{color:var(--dim); font-size:13px; transition:transform .2s}
+  .session.open .chev{transform:rotate(90deg)}
+  .sbody{display:none; padding:0 12px 8px}
+  .session.open .sbody{display:block}
+  .part{margin:10px 0; border-top:1px solid var(--line); padding-top:10px}
+  .part:first-child{border-top:none}
+  .plabel{font-size:12px; font-weight:700; color:var(--accent); letter-spacing:.4px; text-transform:uppercase}
+  .pmeta{font-size:11px; color:var(--dim); margin:3px 0 8px}
+  .pnote{color:var(--accent2); font-style:italic}
+  .ex{background:var(--card2); border:1px solid var(--line); border-radius:11px; padding:9px 10px; margin-bottom:8px}
+  .exhead{display:flex; align-items:flex-start; gap:8px}
+  .exname{flex:1; font-size:14px; font-weight:600; line-height:1.3}
+  .extarget{font-size:12px; color:var(--dim); margin-top:2px}
+  .vid{
+    flex:0 0 auto; text-decoration:none; font-size:12px; padding:5px 9px; border-radius:8px;
+    background:rgba(59,130,246,.14); color:#8ab4f8; border:1px solid rgba(59,130,246,.3);
+    white-space:nowrap;
+  }
+  .vid:active{background:rgba(59,130,246,.28)}
+  .log{
+    width:100%; margin-top:8px; background:var(--bg); border:1px solid var(--line);
+    color:var(--txt); border-radius:8px; padding:8px 10px; font-size:13px; font-family:inherit;
+    resize:vertical; min-height:34px;
+  }
+  .log::placeholder{color:#5b6675}
+  .log:focus{outline:none; border-color:var(--accent)}
+  .log.filled{border-color:var(--accent2); background:rgba(34,197,94,.06)}
+  footer{text-align:center; color:#4a5563; font-size:11px; padding:20px 0 10px}
+  .tools{display:flex; gap:8px; justify-content:center; margin-top:8px}
+  .tools button{
+    background:var(--card); border:1px solid var(--line); color:var(--dim);
+    border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer;
+  }
+  .legend{font-size:11px; color:var(--dim); background:var(--card); border:1px solid var(--line);
+    border-radius:11px; padding:10px 12px; line-height:1.6; margin-top:6px}
+  .legend b{color:var(--txt)}
+</style>
+</head>
+<body>
+<header>
+  <h1>HYPERTROPHY <span>SYSTEM</span></h1>
+  <div class="blockline" id="blockline"></div>
+  <div class="weeks" id="weeks"></div>
+</header>
+<main id="app"></main>
+<footer>
+  Journal enregistré sur cet appareil (hors-ligne).
+  <div class="tools">
+    <button onclick="exportLog()">Exporter mon journal</button>
+    <button onclick="toggleLegend()">Légende</button>
+  </div>
+  <div id="legendBox" style="display:none">
+    <div class="legend">
+      <b>TEMPO</b> (ex. 30X1) : excentrique / pause basse / concentrique (X=explosif) / pause haute, en secondes.<br>
+      <b>RPE</b> : intensité perçue /10 (proximité de l'échec).<br>
+      <b>REST</b> : récup entre les sets. <b>/side</b> : par côté. <b>"</b>=sec, <b>'</b>=min.<br>
+      « enchaîner » = superset/triset, récup seulement en fin de tour.
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---------- DONNÉES DU PROGRAMME ----------
+// 4 blocs de 3 semaines. Seule la Part 1 (charge/reps) change d'un bloc à l'autre.
+const P1 = ["12 reps @ 55-60% 1RM","10 reps @ 60-65% 1RM","8 reps @ 65-70% 1RM","6 reps @ 70-75% 1RM"];
+
+function b(idx){ // construit un bloc (idx 0..3) avec la charge de Part 1 correspondante
+ return [
+  // ---- SÉANCE 1 (Squat) ----
+  {title:"Squat", parts:[
+    {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[
+      ["Back Squat", P1[idx]]]},
+    {label:"Part 2 – Lower Body", note:"enchaîner les 2 mouvements",
+     meta:"4 sets · TEMPO 3110 · RPE 7-8 · REST 2'", ex:[
+      ["Single Leg Romanian Deadlift","10-12/side"],
+      ["Suitcase Front Foot Elevated Split Squat","10-12/side"]]},
+    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements",
+     meta:"4 sets · RPE 8 · REST 2'", ex:[
+      ["2DB Bench Press","10-12 · TEMPO 2020"],
+      ["Tractions pronation lestées","4-6 · TEMPO 21X1"]]},
+    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements",
+     meta:"3 sets · TEMPO contrôlé · RPE 7-8 · REST 2'", ex:[
+      ["Sorenson Hold","1'-2'"],
+      ["AB Wheel","10-12"]]},
+  ]},
+  // ---- SÉANCE 2 (Deadlift) ----
+  {title:"Deadlift", parts:[
+    {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[
+      ["Deadlift", P1[idx]]]},
+    {label:"Part 2 – Lower Body", meta:"4 sets · TEMPO 31X0 · RPE 7-8 · REST 2'", ex:[
+      ["Weighted High Step Ups","6-8/side"]]},
+    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements",
+     meta:"4 sets · RPE 8 · REST 2'", ex:[
+      ["Strict Press","6 · TEMPO 21X1"],
+      ["Barbell Bent Over Row","8-10 · TEMPO 2020"]]},
+    {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements",
+     meta:"3 sets · TEMPO 2020 · RPE 9 · REST 1'30", ex:[
+      ["Inclined DB Biceps Curl","10-12"],
+      ["Cable Triceps Extension","12-15"]]},
+    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements",
+     meta:"3 sets · REST 1'", ex:[
+      ["Plate Rotation in a Split Squat","20"],
+      ["Tuck Sit Knee Wiper","20"]]},
+  ]},
+  // ---- SÉANCE 3 (Bench) ----
+  {title:"Bench Press", parts:[
+    {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[
+      ["Bench Press", P1[idx]]]},
+    {label:"Part 2 – Rowing", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[
+      ["Barbell Seal Row","10-12"]]},
+    {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements",
+     meta:"3 sets · RPE 8-9 · REST 1'30", ex:[
+      ["2DB Bulgarian Split Squat","10-12/side · TEMPO 30X0"],
+      ["Copenhagen Plank",'20-30"/side'],
+      ["Single Leg Banded Abduction","12-15/side"]]},
+    {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements",
+     meta:"4 sets · RPE 8 · REST 2'30", ex:[
+      ["Dips lestés","6-8 · TEMPO 21X1"],
+      ["DB Lateral Raises","15 · TEMPO 2121"],
+      ["Single Arm Farmer Carry",'20-30"/side']]},
+  ]},
+ ];
+}
+
+// Bloc 2 (idx1), 3 (idx2), 4 (idx3) diffèrent après la Part 1 → on définit chaque bloc en entier.
+const BLOCKS = [
+  b(0), // Bloc 1 — semaines 1-3
+  // ---- BLOC 2 — semaines 4-6 ----
+  [
+   {title:"Squat", parts:[
+     {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[1]]]},
+     {label:"Part 2 – Hinge", meta:"4 sets · REST 1'-1'30", ex:[["Staggered KB Swing","20/side"]]},
+     {label:"Part 3 – Lower Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[
+       ["Back Rack Lunges","10-12/side"],["DB Death March","10-12/side"]]},
+     {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · REST 2'", ex:[
+       ["Alternating Seated Pike Leg Lift","20"],["Hanging L-Sit","Max Time (ou Half L-Sit)"]]},
+   ]},
+   {title:"Deadlift", parts:[
+     {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[["Deadlift",P1[1]]]},
+     {label:"Part 2 – Lower Body", meta:"4 sets · REST 1'30", ex:[["Weighted Crossover Step Over","10/side"]]},
+     {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[
+       ["Arnold Press","10-12"],["Gorilla Row","10-12"]]},
+     {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 2020 · RPE 8-9 · REST 1'-1'30", ex:[
+       ["DB Curl","12-15"],["Overhead Dumbbell Triceps Extension","12-15/side"]]},
+     {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · REST 1'30", ex:[
+       ["Split Stance PVC Anti Rotation",'20/20"'],["Dragon Flag 4 sec Eccentric","6"]]},
+   ]},
+   {title:"Bench Press", parts:[
+     {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[["Bench Press",P1[1]]]},
+     {label:"Part 2 – Upper Body", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30", ex:[["Pendlay Row","10-12"]]},
+     {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 1'30-2'", ex:[
+       ["Single Leg Hip Thrust","10/side · TEMPO 20X2"],["Goblet Cyclist Squat","10 · TEMPO 2020"],["Monster Walk","10m"]]},
+     {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+       ["Ring Dips lestés","6-8 · TEMPO 21X1"],["DB Lateral + Frontal Raises","12"],["Single Arm KB Side Bend",'25"/side']]},
+   ]},
+  ],
+  // ---- BLOC 3 — semaines 7-9 ----
+  [
+   {title:"Squat", parts:[
+     {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[2]]]},
+     {label:"Part 2 – Lower Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 30X0 · RPE 8 · REST 2'", ex:[
+       ["Barbell Romanian Deadlift","10-12"],["Suitcase Front Foot Elevated Split Squat","8/side"]]},
+     {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+       ["Ring Push Ups","12 · TEMPO 12X1"],["DB Butterfly Chest Supported","12 · TEMPO 20X1"]]},
+     {label:"Part 4 – Core", meta:"3 sets · REST 1'30", ex:[
+       ["MB Lateral Shot","12/side"],["Heavy Farmer Carry","20m/side"]]},
+   ]},
+   {title:"Deadlift", parts:[
+     {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[["Deadlift",P1[2]]]},
+     {label:"Part 2 – Lower Body", meta:"4 sets · TEMPO 30X1 · RPE 8 · REST 1'30-2'", ex:[["Hip Thrust","10"]]},
+     {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[
+       ["Cable Pull Behind The Neck","10-12"],["Half Kneeling Landmine Press","10/side"]]},
+     {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 2020 · RPE 8-9 · REST 1'-1'30", ex:[
+       ["Spider Curl","12-15"],["Barbell Body Triceps Extension","12-15"]]},
+     {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · RPE 8 · REST 1'30", ex:[
+       ["Banded Pallof Walk Out","6/side (A/R)"],["Cable Crunch","12 · TEMPO 2020"]]},
+   ]},
+   {title:"Bench Press", parts:[
+     {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[["Bench Press",P1[2]]]},
+     {label:"Part 2 – Upper Body", meta:"4 sets · TEMPO 20X2 · RPE 8 · REST 1'30", ex:[["Cable Horizontal Narrow Grip Pull","10-12"]]},
+     {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 1'30-2'", ex:[
+       ["Eccentric Nordic Hamstring Curl","5"],["Leg Extension","10/side · TEMPO 20X2"],["Banded Clamshell","10/side"]]},
+     {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+       ["Alternating DB See Saw Press","12"],["Low Cable Fly","12 · TEMPO 20X0"],["Lateral Star Plank",'25"/side']]},
+   ]},
+  ],
+  // ---- BLOC 4 — semaines 10-12 ----
+  [
+   {title:"Squat", parts:[
+     {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[3]]]},
+     {label:"Part 2 – Lower Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 30X0 · RPE 8 · REST 2'", ex:[
+       ["Single Leg GHD Hip Extension","10/side"],["RNT Barbell Split Squat","8/side"]]},
+     {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+       ["Seated DB Complex Strict Press","12"],["DB Three Point Row","10/side · TEMPO 20X1"]]},
+     {label:"Part 4 – Core", meta:"3 sets · REST 1'30", ex:[
+       ["Lateral Plank Pulse","25/side"],["Ring Body Saw","15"]]},
+   ]},
+   {title:"Deadlift", parts:[
+     {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[["Deadlift",P1[3]]]},
+     {label:"Part 2 – Lower Body", meta:"4 sets · TEMPO 3030 · RPE 7 · REST 1'30-2'", ex:[["Seated Wide Stance Good Morning","10"]]},
+     {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 20X0 · RPE 8 · REST 1'30-2'", ex:[
+       ["Upright Row","10-12"],["DB LU Raises","10"]]},
+     {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements", meta:"4 sets · RPE 8 · REST 1'-1'30", ex:[
+       ["Skull Crusher","12 · TEMPO 20X0"],["Barbell Curl 21's","7-7-7"]]},
+     {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · RPE 8 · REST 1'30", ex:[
+       ["Half Kneeling Chop And Lift","8/8 · TEMPO 20X0"],["L-Sit","Max Time"]]},
+   ]},
+   {title:"Bench Press", parts:[
+     {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[["Bench Press",P1[3]]]},
+     {label:"Part 2 – Upper Body", meta:"4 sets · TEMPO 20X2 · RPE 8 · REST 1'30", ex:[["Wide Grip Pull Ups or Cable Vertical Row","10-12"]]},
+     {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 1'30-2'", ex:[
+       ["Sissy Squat","6"],["Side Band Walk ou Machine Abductor","10/side · TEMPO 20X2"],["Single Leg Wall Sit",'20"/side']]},
+     {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+       ["Cable Pull Over","12 · TEMPO 20X0"],["Inclined DB Bench Press","12 · TEMPO 20X0"],["Cable Rowing Pass Through","12/side"]]},
+   ]},
+  ],
+];
+
+const BLOCK_INFO = [
+  {r:"12 reps @ 55-60% 1RM", w:[1,2,3]},
+  {r:"10 reps @ 60-65% 1RM", w:[4,5,6]},
+  {r:"8 reps @ 65-70% 1RM",  w:[7,8,9]},
+  {r:"6 reps @ 70-75% 1RM",  w:[10,11,12]},
+];
+
+// ---------- ÉTAT / STOCKAGE ----------
+const LS = "hs_log_v2";
+let LOG = JSON.parse(localStorage.getItem(LS) || "{}");
+let week = parseInt(localStorage.getItem("hs_week") || "1");
+let openSession = {}; // par semaine
+
+function save(){ localStorage.setItem(LS, JSON.stringify(LOG)); }
+function blockOf(w){ return Math.floor((w-1)/3); }
+
+// ---------- RENDU ----------
+function renderWeeks(){
+  const el = document.getElementById("weeks");
+  el.innerHTML = "";
+  for(let w=1; w<=12; w++){
+    const d = document.createElement("div");
+    d.className = "wk" + (w===week?" active":"");
+    d.textContent = w;
+    // point vert si au moins un log rempli cette semaine
+    if(Object.keys(LOG).some(k=>k.startsWith("w"+w+"-") && LOG[k].trim())){
+      const dot=document.createElement("span"); dot.className="dot"; d.appendChild(dot);
+    }
+    d.onclick = ()=>{ week=w; localStorage.setItem("hs_week",w); render(); };
+    el.appendChild(d);
+  }
+}
+
+function render(){
+  renderWeeks();
+  const bi = blockOf(week);
+  document.getElementById("blockline").innerHTML =
+    "Bloc "+(bi+1)+" · Semaine "+week+" / 12 — <b style='color:#e6edf3'>Part 1 : "+BLOCK_INFO[bi].r+"</b>";
+  const sessions = BLOCKS[bi];
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  sessions.forEach((s, si)=>{
+    const isOpen = openSession[week] === si;
+    const card = document.createElement("div");
+    card.className = "session" + (isOpen?" open":"");
+    let html = `<div class="shead" data-s="${si}">
+        <div class="sbadge">S${si+1}</div>
+        <div class="stitle">Séance ${si+1} · ${s.title}<div class="ssub">${s.parts.length} parties</div></div>
+        <div class="chev">▶</div></div><div class="sbody">`;
+    s.parts.forEach((p, pi)=>{
+      html += `<div class="part"><div class="plabel">${p.label}</div>`;
+      html += `<div class="pmeta">${p.meta}${p.note?` · <span class="pnote">${p.note}</span>`:""}</div>`;
+      p.ex.forEach((e, ei)=>{
+        const name=e[0], target=e[1];
+        const key=`w${week}-s${si}-p${pi}-e${ei}`;
+        const val=(LOG[key]||"");
+        const yt="https://www.youtube.com/results?search_query="+encodeURIComponent(name+" exercise technique");
+        html += `<div class="ex">
+          <div class="exhead">
+            <div class="exname">${name}<div class="extarget">${target}</div></div>
+            <a class="vid" href="${yt}" target="_blank" rel="noopener">🎥 Vidéo</a>
+          </div>
+          <textarea class="log ${val.trim()?"filled":""}" data-key="${key}"
+            placeholder="Ce que j'ai fait (charges, reps, sensations…)">${val.replace(/</g,"&lt;")}</textarea>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+    card.innerHTML = html;
+    app.appendChild(card);
+  });
+
+  // événements
+  app.querySelectorAll(".shead").forEach(h=>{
+    h.onclick=()=>{ const si=+h.dataset.s;
+      openSession[week] = (openSession[week]===si)?null:si; render(); };
+  });
+  app.querySelectorAll(".log").forEach(t=>{
+    t.addEventListener("input", ()=>{
+      LOG[t.dataset.key]=t.value; save();
+      t.classList.toggle("filled", !!t.value.trim());
+    });
+  });
+}
+
+function exportLog(){
+  let out="HYPERTROPHY SYSTEM — Mon journal\n\n";
+  for(let w=1; w<=12; w++){
+    const bi=blockOf(w), sessions=BLOCKS[bi]; let wk="";
+    sessions.forEach((s,si)=>{
+      let ses="";
+      s.parts.forEach((p,pi)=>p.ex.forEach((e,ei)=>{
+        const v=LOG[`w${w}-s${si}-p${pi}-e${ei}`];
+        if(v && v.trim()) ses+=`  • ${e[0]} : ${v.trim()}\n`;
+      }));
+      if(ses) wk+=` Séance ${si+1} (${s.title})\n${ses}`;
+    });
+    if(wk) out+=`=== SEMAINE ${w} ===\n${wk}\n`;
+  }
+  if(out.trim().endsWith("journal")) out+="(aucune entrée pour l'instant)\n";
+  const blob=new Blob([out],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="journal-hypertrophy.txt"; a.click();
+}
+function toggleLegend(){
+  const b=document.getElementById("legendBox");
+  b.style.display = b.style.display==="none"?"block":"none";
+}
+
+render();
+</script>
+</body>
+</html>
