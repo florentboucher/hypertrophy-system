@@ -3,104 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Hypertrophy">
 <title>Hypertrophy System</title>
 <style>
   :root{
-    --bg:#0d1117; --card:#161b22; --card2:#1c2330; --line:#2a3441;
-    --txt:#e6edf3; --dim:#8b98a9; --accent:#f97316; --accent2:#22c55e;
-    --blue:#3b82f6;
+    --bg:#ffffff; --elev:#ffffff; --field:#f5f5f7; --line:#e5e5ea; --line2:#d2d2d7;
+    --txt:#1d1d1f; --dim:#6e6e73; --dim2:#86868b;
+    --ink:#1d1d1f; --oninval:#ffffff;
+    --nav:rgba(255,255,255,.82);
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;padding:0}
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#000000; --elev:#1c1c1e; --field:#1c1c1e; --line:#2c2c2e; --line2:#38383a;
+      --txt:#f5f5f7; --dim:#aeaeb2; --dim2:#8e8e93;
+      --ink:#f5f5f7; --oninval:#000000;
+      --nav:rgba(20,20,22,.8);
+    }
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
   body{
     background:var(--bg); color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    padding-bottom:env(safe-area-inset-bottom);
-    -webkit-font-smoothing:antialiased;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; letter-spacing:-0.01em;
   }
-  header{
-    position:sticky; top:0; z-index:20; background:rgba(13,17,23,.92);
-    backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
-    padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;
-  }
-  h1{font-size:16px; margin:0 0 2px; letter-spacing:.3px}
-  h1 span{color:var(--accent)}
-  .blockline{font-size:12px; color:var(--dim); margin-bottom:8px}
-  .weeks{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none}
+  .view{display:none; padding:0 20px calc(84px + env(safe-area-inset-bottom)); max-width:620px; margin:0 auto}
+  .view.active{display:block}
+  .ltitle{font-size:32px; font-weight:700; letter-spacing:-0.03em; padding:calc(env(safe-area-inset-top) + 22px) 0 4px}
+  .lsub{font-size:14px; color:var(--dim); margin-bottom:16px}
+
+  /* Onglet Programme */
+  .weeks{display:flex; gap:8px; overflow-x:auto; padding:6px 0 12px; scrollbar-width:none}
   .weeks::-webkit-scrollbar{display:none}
-  .wk{
-    flex:0 0 auto; width:38px; height:38px; border-radius:11px;
-    border:1px solid var(--line); background:var(--card);
-    color:var(--dim); font-size:14px; font-weight:600;
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    position:relative;
-  }
-  .wk.active{background:var(--accent); color:#fff; border-color:var(--accent)}
-  .wk .dot{position:absolute; bottom:4px; width:4px; height:4px; border-radius:50%; background:var(--accent2)}
-  .wk.active .dot{background:#fff}
-  main{padding:12px 12px 40px; max-width:640px; margin:0 auto}
-  .session{margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:var(--card); overflow:hidden}
-  .shead{
-    display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer;
-    user-select:none;
-  }
-  .sbadge{
-    flex:0 0 auto; width:30px; height:30px; border-radius:9px; font-weight:700; font-size:14px;
-    display:flex; align-items:center; justify-content:center; background:var(--card2); color:var(--accent);
-  }
-  .stitle{flex:1; font-size:15px; font-weight:600}
-  .ssub{font-size:11.5px; color:var(--dim); font-weight:400}
-  .chev{color:var(--dim); font-size:13px; transition:transform .2s}
+  .wk{flex:0 0 auto; width:44px; height:44px; border-radius:14px; border:1px solid var(--line2);
+    background:var(--elev); color:var(--dim); font-size:15px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; position:relative; transition:.15s}
+  .wk.active{background:var(--ink); color:var(--oninval); border-color:var(--ink)}
+  .wk .dot{position:absolute; bottom:5px; width:4px; height:4px; border-radius:50%; background:var(--dim2)}
+  .wk.active .dot{background:var(--oninval)}
+
+  .session{margin-bottom:12px; border:1px solid var(--line); border-radius:18px; background:var(--elev); overflow:hidden}
+  .shead{display:flex; align-items:center; gap:12px; padding:16px; cursor:pointer; user-select:none}
+  .sbadge{flex:0 0 auto; width:34px; height:34px; border-radius:10px; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center; background:var(--field); color:var(--txt)}
+  .stitle{flex:1; font-size:16px; font-weight:600}
+  .ssub{font-size:12.5px; color:var(--dim); font-weight:400; margin-top:1px}
+  .chev{color:var(--dim2); font-size:13px; transition:transform .2s}
   .session.open .chev{transform:rotate(90deg)}
-  .sbody{display:none; padding:0 12px 8px}
+  .sbody{display:none; padding:0 16px 6px}
   .session.open .sbody{display:block}
-  .part{margin:10px 0; border-top:1px solid var(--line); padding-top:10px}
+  .part{margin:8px 0; border-top:1px solid var(--line); padding-top:12px}
   .part:first-child{border-top:none}
-  .plabel{font-size:12px; font-weight:700; color:var(--accent); letter-spacing:.4px; text-transform:uppercase}
-  .pmeta{font-size:11px; color:var(--dim); margin:3px 0 8px}
-  .pnote{color:var(--accent2); font-style:italic}
-  .ex{background:var(--card2); border:1px solid var(--line); border-radius:11px; padding:9px 10px; margin-bottom:8px}
-  .exhead{display:flex; align-items:flex-start; gap:8px}
-  .exname{flex:1; font-size:14px; font-weight:600; line-height:1.3}
-  .extarget{font-size:12px; color:var(--dim); margin-top:2px}
-  .vid{
-    flex:0 0 auto; text-decoration:none; font-size:12px; padding:5px 9px; border-radius:8px;
-    background:rgba(59,130,246,.14); color:#8ab4f8; border:1px solid rgba(59,130,246,.3);
-    white-space:nowrap;
-  }
-  .vid:active{background:rgba(59,130,246,.28)}
-  .log{
-    width:100%; margin-top:8px; background:var(--bg); border:1px solid var(--line);
-    color:var(--txt); border-radius:8px; padding:8px 10px; font-size:13px; font-family:inherit;
-    resize:vertical; min-height:34px;
-  }
-  .log::placeholder{color:#5b6675}
-  .log:focus{outline:none; border-color:var(--accent)}
-  .log.filled{border-color:var(--accent2); background:rgba(34,197,94,.06)}
-  footer{text-align:center; color:#4a5563; font-size:11px; padding:20px 0 10px}
-  .tools{display:flex; gap:8px; justify-content:center; margin-top:8px}
-  .tools button{
-    background:var(--card); border:1px solid var(--line); color:var(--dim);
-    border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer;
-  }
-  .legend{font-size:11px; color:var(--dim); background:var(--card); border:1px solid var(--line);
-    border-radius:11px; padding:10px 12px; line-height:1.6; margin-top:6px}
+  .plabel{font-size:12px; font-weight:700; color:var(--txt); letter-spacing:.02em; text-transform:uppercase}
+  .pmeta{font-size:12px; color:var(--dim); margin:3px 0 10px}
+  .pnote{color:var(--txt); font-style:italic; opacity:.75}
+  .ex{background:var(--field); border-radius:14px; padding:12px; margin-bottom:8px}
+  .exhead{display:flex; align-items:flex-start; gap:10px}
+  .exname{flex:1; font-size:15px; font-weight:600; line-height:1.3}
+  .extarget{font-size:12.5px; color:var(--dim); margin-top:2px; font-weight:400}
+  .vid{flex:0 0 auto; text-decoration:none; font-size:12.5px; font-weight:500; padding:6px 11px;
+    border-radius:980px; background:var(--elev); color:var(--txt); border:1px solid var(--line2); white-space:nowrap}
+  .vid:active{background:var(--line)}
+  .log{width:100%; margin-top:10px; background:var(--elev); border:1px solid var(--line2); color:var(--txt);
+    border-radius:11px; padding:10px 12px; font-size:14px; font-family:inherit; resize:vertical; min-height:38px}
+  .log::placeholder{color:var(--dim2)}
+  .log:focus{outline:none; border-color:var(--ink)}
+  .log.filled{border-color:var(--ink)}
+
+  .tools{display:flex; gap:8px; justify-content:center; margin:14px 0 4px; flex-wrap:wrap}
+  .tools button{background:var(--elev); border:1px solid var(--line2); color:var(--txt);
+    border-radius:980px; padding:9px 16px; font-size:13px; cursor:pointer; font-family:inherit; font-weight:500}
+  .legend{font-size:12.5px; color:var(--dim); background:var(--field); border-radius:14px; padding:14px; line-height:1.6; margin-top:10px}
   .legend b{color:var(--txt)}
+
+  /* Onglet Profil */
+  .card{background:var(--elev); border:1px solid var(--line); border-radius:18px; padding:6px 16px; margin-bottom:16px}
+  .row{display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid var(--line)}
+  .row:first-child{border-top:none}
+  .row label{flex:1; font-size:15px; font-weight:500}
+  .row .hint{display:block; font-size:12px; color:var(--dim2); font-weight:400; margin-top:1px}
+  .fieldwrap{flex:0 0 auto; display:flex; align-items:center; gap:6px}
+  .fieldwrap input{width:88px; background:var(--field); border:1px solid transparent; color:var(--txt);
+    border-radius:10px; padding:9px 10px; font-size:15px; font-family:inherit; text-align:right; font-weight:600}
+  .fieldwrap input:focus{outline:none; border-color:var(--ink)}
+  .fieldwrap .unit{font-size:13px; color:var(--dim2); width:26px}
+  select.act{width:100%; background:var(--field); border:1px solid transparent; color:var(--txt);
+    border-radius:10px; padding:11px 12px; font-size:15px; font-family:inherit; font-weight:500; -webkit-appearance:none; appearance:none}
+  select.act:focus{outline:none; border-color:var(--ink)}
+  .seclabel{font-size:12px; font-weight:600; color:var(--dim2); text-transform:uppercase; letter-spacing:.04em; margin:4px 4px 8px}
+
+  .results{background:var(--ink); border-radius:18px; padding:20px; margin-bottom:16px; color:var(--oninval)}
+  .results.empty{background:var(--field); color:var(--dim)}
+  .bigval{display:flex; align-items:baseline; gap:8px; margin-bottom:14px}
+  .bigval .n{font-size:40px; font-weight:700; letter-spacing:-0.03em}
+  .bigval .u{font-size:15px; opacity:.7}
+  .bigval .lbl{font-size:13px; opacity:.7; margin-left:auto; text-align:right; max-width:130px}
+  .rgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .rcell{background:rgba(128,128,128,.18); border-radius:12px; padding:12px}
+  .rcell .rv{font-size:20px; font-weight:700}
+  .rcell .rk{font-size:11.5px; opacity:.75; margin-top:2px}
+  .formula{font-size:12px; color:var(--dim); text-align:center; padding:2px 10px 6px; line-height:1.5}
+
+  /* Placeholder Nutrition */
+  .placeholder{text-align:center; padding:70px 20px; color:var(--dim)}
+  .placeholder svg{width:52px; height:52px; opacity:.35; margin-bottom:16px}
+  .placeholder h3{font-size:19px; font-weight:600; color:var(--txt); margin:0 0 6px}
+  .placeholder p{font-size:14px; margin:0; max-width:280px; margin:0 auto; line-height:1.5}
+
+  /* Barre d'onglets */
+  nav{position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; justify-content:space-around;
+    background:var(--nav); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-top:1px solid var(--line2); padding:8px 0 calc(6px + env(safe-area-inset-bottom))}
+  .tab{flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:var(--dim2); cursor:pointer; font-family:inherit; padding:2px}
+  .tab svg{width:25px; height:25px; stroke:currentColor; fill:none; stroke-width:1.7}
+  .tab.active{color:var(--txt)}
+  .tab span{font-size:10.5px; font-weight:500; letter-spacing:0}
 </style>
 </head>
 <body>
-<header>
-  <h1>HYPERTROPHY <span>SYSTEM</span></h1>
-  <div class="blockline" id="blockline"></div>
+
+<!-- ===== PROGRAMME ===== -->
+<section class="view active" id="view-prog">
+  <div class="ltitle">Programme</div>
+  <div class="lsub" id="blockline"></div>
   <div class="weeks" id="weeks"></div>
-</header>
-<main id="app"></main>
-<footer>
-  Journal enregistré sur cet appareil (hors-ligne).
+  <div id="progContent"></div>
   <div class="tools">
     <button onclick="exportLog()">Exporter mon journal</button>
     <button onclick="toggleLegend()">Légende</button>
@@ -108,80 +139,124 @@
   <div id="legendBox" style="display:none">
     <div class="legend">
       <b>TEMPO</b> (ex. 30X1) : excentrique / pause basse / concentrique (X=explosif) / pause haute, en secondes.<br>
-      <b>RPE</b> : intensité perçue /10 (proximité de l'échec).<br>
-      <b>REST</b> : récup entre les sets. <b>/side</b> : par côté. <b>"</b>=sec, <b>'</b>=min.<br>
+      <b>RPE</b> : intensité perçue /10. <b>REST</b> : récup entre les sets. <b>/side</b> : par côté.<br>
       « enchaîner » = superset/triset, récup seulement en fin de tour.
     </div>
   </div>
-</footer>
+</section>
+
+<!-- ===== NUTRITION ===== -->
+<section class="view" id="view-nutri">
+  <div class="ltitle">Nutrition</div>
+  <div class="placeholder">
+    <svg viewBox="0 0 24 24"><path d="M5 3v18M5 8h0M8 3v6a3 3 0 0 1-6 0V3M19 3c-1.5 0-3 2-3 6s1 5 3 5v7"/></svg>
+    <h3>Bientôt disponible</h3>
+    <p>Cet onglet accueillera le contenu nutrition. Tu me le préciseras à la prochaine étape.</p>
+  </div>
+</section>
+
+<!-- ===== PROFIL ===== -->
+<section class="view" id="view-profil">
+  <div class="ltitle">Profil</div>
+  <div class="lsub">Renseigne tes données pour calculer ton métabolisme.</div>
+
+  <div class="seclabel">Composition</div>
+  <div class="card">
+    <div class="row">
+      <label>Poids<span class="hint">Poids de corps actuel</span></label>
+      <div class="fieldwrap"><input id="p_weight" type="number" inputmode="decimal" placeholder="80"><span class="unit">kg</span></div>
+    </div>
+    <div class="row">
+      <label>Masse grasse<span class="hint">Taux estimé</span></label>
+      <div class="fieldwrap"><input id="p_bf" type="number" inputmode="decimal" placeholder="15"><span class="unit">%</span></div>
+    </div>
+  </div>
+
+  <div class="seclabel">Activité</div>
+  <div class="card">
+    <div class="row" style="display:block; padding:16px 0">
+      <select class="act" id="p_act">
+        <option value="1.375">Sportif occasionnel — 1 à 3 séances/sem</option>
+        <option value="1.55">Assez sportif — 3 à 4 séances/sem</option>
+        <option value="1.725">Très sportif — 5 à 6 séances/sem</option>
+        <option value="1.9">Extrêmement sportif — 2×/jour</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="seclabel">Métabolisme</div>
+  <div id="metaBox"></div>
+  <div class="formula">Katch-McArdle · Masse maigre = Poids × (1 − %MG) · BMR = 370 + 21,6 × masse maigre</div>
+
+  <div class="seclabel" style="margin-top:8px">Objectifs macronutriments</div>
+  <div class="card">
+    <div class="row">
+      <label>Protéines<span class="hint">par jour</span></label>
+      <div class="fieldwrap"><input id="p_prot" type="number" inputmode="decimal" placeholder="180"><span class="unit">g</span></div>
+    </div>
+    <div class="row">
+      <label>Lipides<span class="hint">par jour</span></label>
+      <div class="fieldwrap"><input id="p_lip" type="number" inputmode="decimal" placeholder="70"><span class="unit">g</span></div>
+    </div>
+    <div class="row">
+      <label>Glucides<span class="hint">par jour</span></label>
+      <div class="fieldwrap"><input id="p_carb" type="number" inputmode="decimal" placeholder="300"><span class="unit">g</span></div>
+    </div>
+  </div>
+  <div id="macroBox"></div>
+</section>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <button class="tab active" data-tab="prog" onclick="switchTab('prog')">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M4 9v6M20 9v6M6.5 12h11"/></svg>
+    <span>Programme</span>
+  </button>
+  <button class="tab" data-tab="nutri" onclick="switchTab('nutri')">
+    <svg viewBox="0 0 24 24"><path d="M5 3v18M5 8h0M8 3v6a3 3 0 0 1-6 0V3M19 3c-1.5 0-3 2-3 6s1 5 3 5v7"/></svg>
+    <span>Nutrition</span>
+  </button>
+  <button class="tab" data-tab="profil" onclick="switchTab('profil')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>
+    <span>Profil</span>
+  </button>
+</nav>
 
 <script>
-// ---------- DONNÉES DU PROGRAMME ----------
-// 4 blocs de 3 semaines. Seule la Part 1 (charge/reps) change d'un bloc à l'autre.
+// ---------- DONNÉES PROGRAMME ----------
 const P1 = ["12 reps @ 55-60% 1RM","10 reps @ 60-65% 1RM","8 reps @ 65-70% 1RM","6 reps @ 70-75% 1RM"];
-
-function b(idx){ // construit un bloc (idx 0..3) avec la charge de Part 1 correspondante
- return [
-  // ---- SÉANCE 1 (Squat) ----
+function b(idx){ return [
   {title:"Squat", parts:[
-    {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[
-      ["Back Squat", P1[idx]]]},
-    {label:"Part 2 – Lower Body", note:"enchaîner les 2 mouvements",
-     meta:"4 sets · TEMPO 3110 · RPE 7-8 · REST 2'", ex:[
-      ["Single Leg Romanian Deadlift","10-12/side"],
-      ["Suitcase Front Foot Elevated Split Squat","10-12/side"]]},
-    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements",
-     meta:"4 sets · RPE 8 · REST 2'", ex:[
-      ["2DB Bench Press","10-12 · TEMPO 2020"],
-      ["Tractions pronation lestées","4-6 · TEMPO 21X1"]]},
-    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements",
-     meta:"3 sets · TEMPO contrôlé · RPE 7-8 · REST 2'", ex:[
-      ["Sorenson Hold","1'-2'"],
-      ["AB Wheel","10-12"]]},
+    {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[idx]]]},
+    {label:"Part 2 – Lower Body", note:"enchaîner les 2 mouvements", meta:"4 sets · TEMPO 3110 · RPE 7-8 · REST 2'", ex:[
+      ["Single Leg Romanian Deadlift","10-12/side"],["Suitcase Front Foot Elevated Split Squat","10-12/side"]]},
+    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+      ["2DB Bench Press","10-12 · TEMPO 2020"],["Tractions pronation lestées","4-6 · TEMPO 21X1"]]},
+    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · TEMPO contrôlé · RPE 7-8 · REST 2'", ex:[
+      ["Sorenson Hold","1'-2'"],["AB Wheel","10-12"]]},
   ]},
-  // ---- SÉANCE 2 (Deadlift) ----
   {title:"Deadlift", parts:[
-    {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[
-      ["Deadlift", P1[idx]]]},
-    {label:"Part 2 – Lower Body", meta:"4 sets · TEMPO 31X0 · RPE 7-8 · REST 2'", ex:[
-      ["Weighted High Step Ups","6-8/side"]]},
-    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements",
-     meta:"4 sets · RPE 8 · REST 2'", ex:[
-      ["Strict Press","6 · TEMPO 21X1"],
-      ["Barbell Bent Over Row","8-10 · TEMPO 2020"]]},
-    {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements",
-     meta:"3 sets · TEMPO 2020 · RPE 9 · REST 1'30", ex:[
-      ["Inclined DB Biceps Curl","10-12"],
-      ["Cable Triceps Extension","12-15"]]},
-    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements",
-     meta:"3 sets · REST 1'", ex:[
-      ["Plate Rotation in a Split Squat","20"],
-      ["Tuck Sit Knee Wiper","20"]]},
+    {label:"Part 1 – Deadlift", meta:"4-5 sets · TEMPO 20X1 · REST 3'", ex:[["Deadlift",P1[idx]]]},
+    {label:"Part 2 – Lower Body", meta:"4 sets · TEMPO 31X0 · RPE 7-8 · REST 2'", ex:[["Weighted High Step Ups","6-8/side"]]},
+    {label:"Part 3 – Upper Body", note:"enchaîner les 2 mouvements", meta:"4 sets · RPE 8 · REST 2'", ex:[
+      ["Strict Press","6 · TEMPO 21X1"],["Barbell Bent Over Row","8-10 · TEMPO 2020"]]},
+    {label:"Part 3b – Bras", note:"enchaîner les 2 mouvements", meta:"3 sets · TEMPO 2020 · RPE 9 · REST 1'30", ex:[
+      ["Inclined DB Biceps Curl","10-12"],["Cable Triceps Extension","12-15"]]},
+    {label:"Part 4 – Core", note:"enchaîner les 2 mouvements", meta:"3 sets · REST 1'", ex:[
+      ["Plate Rotation in a Split Squat","20"],["Tuck Sit Knee Wiper","20"]]},
   ]},
-  // ---- SÉANCE 3 (Bench) ----
   {title:"Bench Press", parts:[
-    {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[
-      ["Bench Press", P1[idx]]]},
-    {label:"Part 2 – Rowing", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[
-      ["Barbell Seal Row","10-12"]]},
-    {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements",
-     meta:"3 sets · RPE 8-9 · REST 1'30", ex:[
-      ["2DB Bulgarian Split Squat","10-12/side · TEMPO 30X0"],
-      ["Copenhagen Plank",'20-30"/side'],
-      ["Single Leg Banded Abduction","12-15/side"]]},
-    {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements",
-     meta:"4 sets · RPE 8 · REST 2'30", ex:[
-      ["Dips lestés","6-8 · TEMPO 21X1"],
-      ["DB Lateral Raises","15 · TEMPO 2121"],
-      ["Single Arm Farmer Carry",'20-30"/side']]},
+    {label:"Part 1 – Bench Press", meta:"4-5 sets · TEMPO 31X1 · REST 2'30-3'", ex:[["Bench Press",P1[idx]]]},
+    {label:"Part 2 – Rowing", meta:"4 sets · TEMPO 2020 · RPE 8 · REST 1'30-2'", ex:[["Barbell Seal Row","10-12"]]},
+    {label:"Part 3 – Lower Body", note:"enchaîner les 3 mouvements", meta:"3 sets · RPE 8-9 · REST 1'30", ex:[
+      ["2DB Bulgarian Split Squat","10-12/side · TEMPO 30X0"],["Copenhagen Plank",'20-30"/side'],["Single Leg Banded Abduction","12-15/side"]]},
+    {label:"Part 4 – Triset", note:"enchaîner les 3 mouvements", meta:"4 sets · RPE 8 · REST 2'30", ex:[
+      ["Dips lestés","6-8 · TEMPO 21X1"],["DB Lateral Raises","15 · TEMPO 2121"],["Single Arm Farmer Carry",'20-30"/side']]},
   ]},
- ];
-}
+ ]; }
 
-// Bloc 2 (idx1), 3 (idx2), 4 (idx3) diffèrent après la Part 1 → on définit chaque bloc en entier.
 const BLOCKS = [
-  b(0), // Bloc 1 — semaines 1-3
-  // ---- BLOC 2 — semaines 4-6 ----
+  b(0),
   [
    {title:"Squat", parts:[
      {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[1]]]},
@@ -210,7 +285,6 @@ const BLOCKS = [
        ["Ring Dips lestés","6-8 · TEMPO 21X1"],["DB Lateral + Frontal Raises","12"],["Single Arm KB Side Bend",'25"/side']]},
    ]},
   ],
-  // ---- BLOC 3 — semaines 7-9 ----
   [
    {title:"Squat", parts:[
      {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[2]]]},
@@ -240,7 +314,6 @@ const BLOCKS = [
        ["Alternating DB See Saw Press","12"],["Low Cable Fly","12 · TEMPO 20X0"],["Lateral Star Plank",'25"/side']]},
    ]},
   ],
-  // ---- BLOC 4 — semaines 10-12 ----
   [
    {title:"Squat", parts:[
      {label:"Part 1 – Back Squat", meta:"4-5 sets · TEMPO 30X1 · REST 2'30-3'", ex:[["Back Squat",P1[3]]]},
@@ -273,202 +346,189 @@ const BLOCKS = [
 ];
 
 const BLOCK_INFO = [
-  {r:"12 reps @ 55-60% 1RM", w:[1,2,3]},
-  {r:"10 reps @ 60-65% 1RM", w:[4,5,6]},
-  {r:"8 reps @ 65-70% 1RM",  w:[7,8,9]},
-  {r:"6 reps @ 70-75% 1RM",  w:[10,11,12]},
+  {r:"12 reps @ 55-60% 1RM"},{r:"10 reps @ 60-65% 1RM"},{r:"8 reps @ 65-70% 1RM"},{r:"6 reps @ 70-75% 1RM"},
 ];
 
-// ---------- LIENS VIDÉO (WAATH) ----------
-// Un lien par exercice ; réutilisé sur les 3 semaines de chaque bloc.
 const VIDEOS = {
-  "Back Squat":"https://youtu.be/q07Kvt54D4M",
-  "Single Leg Romanian Deadlift":"https://youtu.be/TUQVJR2q-hc",
-  "Suitcase Front Foot Elevated Split Squat":"https://youtu.be/CEz7kK-tX5w",
-  "2DB Bench Press":"https://youtu.be/trA_8Di43JA",
-  "Tractions pronation lestées":"https://youtu.be/-7DBf_IcXLo",
-  "Sorenson Hold":"https://youtu.be/gLOurD_cuRk",
-  "AB Wheel":"https://youtu.be/JCVjgFkXVZU",
-  "Deadlift":"https://youtu.be/F5TdTMctFRU",
-  "Weighted High Step Ups":"https://youtu.be/HCrJNO5yPz4",
-  "Strict Press":"https://youtu.be/eLbP-0hhxDs",
-  "Barbell Bent Over Row":"https://youtu.be/4INYT-ARPn8",
-  "Inclined DB Biceps Curl":"https://youtu.be/3devQJME7PM",
-  "Cable Triceps Extension":"https://youtu.be/bFsEuH8g5pY",
-  "Plate Rotation in a Split Squat":"https://youtu.be/zXKI0nvsJH8",
-  "Tuck Sit Knee Wiper":"https://youtu.be/LxmNNHo-PWE",
-  "Bench Press":"https://youtu.be/fsYTB35A7SM",
-  "Barbell Seal Row":"https://youtu.be/LcCX9gpkjv4",
-  "2DB Bulgarian Split Squat":"https://youtu.be/9QztbkS-am4",
-  "Copenhagen Plank":"https://youtu.be/-sFYO9yUWsY",
-  "Single Leg Banded Abduction":"https://youtu.be/TItA7Vh8RVo",
-  "Dips lestés":"https://youtu.be/C7Un30CxUfY",
-  "DB Lateral Raises":"https://youtu.be/AkYCCFtTS_I",
-  "Single Arm Farmer Carry":"https://youtu.be/WBkB6VS-ahk",
-  "Staggered KB Swing":"https://youtu.be/b6vL1tykAog",
-  "Back Rack Lunges":"https://youtu.be/OKOZWHfsyqk",
-  "DB Death March":"https://youtu.be/5AHbBqr3I94",
-  "Alternating Seated Pike Leg Lift":"https://youtu.be/EUx9jJaTjvE",
-  "Hanging L-Sit":"https://youtu.be/NmSQyt4pyM8",
-  "Weighted Crossover Step Over":"https://youtu.be/BdOXLbsxgN4",
-  "Arnold Press":"https://youtu.be/WN9XU25V130",
-  "Gorilla Row":"https://youtu.be/5MM_KBrIi60",
-  "DB Curl":"https://youtu.be/Z4StVcYTcFk",
-  "Overhead Dumbbell Triceps Extension":"https://youtu.be/mKahIBfyvEE",
-  "Split Stance PVC Anti Rotation":"https://youtu.be/3UiDaBORkRQ",
-  "Dragon Flag 4 sec Eccentric":"https://youtu.be/XfkJvuhqz-Y",
-  "Pendlay Row":"https://youtu.be/fIGYIOc3pOM",
-  "Single Leg Hip Thrust":"https://youtu.be/HZpkQ74DAFY",
-  "Goblet Cyclist Squat":"https://youtu.be/zr-yAmB2tJY",
-  "Monster Walk":"https://youtu.be/r7IuxHlTh3Y",
-  "Ring Dips lestés":"https://youtube.com/shorts/FdX_b3Pe2bU",
-  "DB Lateral + Frontal Raises":"https://youtu.be/eg_mqiERzF4",
-  "Single Arm KB Side Bend":"https://youtu.be/N4FMRGl1O44",
-  "Barbell Romanian Deadlift":"https://youtu.be/Pbb9tHEORoM",
-  "Ring Push Ups":"https://youtu.be/adK2WvGlx7w",
-  "DB Butterfly Chest Supported":"https://youtu.be/dO80zCsvZNk",
-  "MB Lateral Shot":"https://youtu.be/Dt9phLPGLqk",
-  "Heavy Farmer Carry":"https://youtu.be/XWle-Cb0ysc",
-  "Hip Thrust":"https://youtu.be/QDek9MudEBc",
-  "Cable Pull Behind The Neck":"https://youtu.be/qn-3lWmtz8o",
-  "Half Kneeling Landmine Press":"https://youtu.be/SFn7Aneuo50",
-  "Spider Curl":"https://youtu.be/jobHts7dqfI",
-  "Barbell Body Triceps Extension":"https://youtu.be/3Q6v-SwXxHU",
-  "Banded Pallof Walk Out":"https://youtu.be/OzmKd-D74d0",
-  "Cable Crunch":"https://youtu.be/QXZJBLDpX-E",
-  "Cable Horizontal Narrow Grip Pull":"https://youtu.be/7mh06UQVNRU",
-  "Eccentric Nordic Hamstring Curl":"https://youtu.be/nk7VdkQuhLo",
-  "Leg Extension":"https://www.youtube.com/shorts/iQ92TuvBqRo",
-  "Banded Clamshell":"https://youtu.be/3HEdtn-Fj98",
-  "Alternating DB See Saw Press":"https://youtu.be/3ipX32aXaFg",
-  "Low Cable Fly":"https://youtu.be/kMmdTn1_lWk",
-  "Lateral Star Plank":"https://youtu.be/xeDeY8PGB2E",
-  "Single Leg GHD Hip Extension":"https://youtu.be/v0Ycq9m1ILc",
-  "RNT Barbell Split Squat":"https://youtu.be/Z9MXfpkP6aI",
-  "Seated DB Complex Strict Press":"https://youtu.be/nPbjDsLqRwM",
-  "DB Three Point Row":"https://youtu.be/U3wcDSRMX5c",
-  "Lateral Plank Pulse":"https://youtu.be/JYAzdbBWxfI",
-  "Ring Body Saw":"https://youtu.be/z7XJ22GYzrY",
-  "Seated Wide Stance Good Morning":"https://youtu.be/s163h4Be1Jc",
-  "Upright Row":"https://youtu.be/xUayk3yYtiI",
-  "DB LU Raises":"https://youtu.be/LBlmcWzJqx0",
-  "Skull Crusher":"https://youtu.be/x-Ng39p2DrU",
-  "Barbell Curl 21's":"https://youtu.be/ne375uDM-Hg",
-  "Half Kneeling Chop And Lift":"https://youtu.be/qwl7rjNtXlg",
-  "L-Sit":"https://youtu.be/Lfuwf2yCQzw",
-  "Wide Grip Pull Ups or Cable Vertical Row":"https://youtu.be/r1KOddEVRmY",
-  "Sissy Squat":"https://youtu.be/sIimPA15aW0",
-  "Side Band Walk ou Machine Abductor":"https://youtube.com/shorts/B5r-BeqUzaw",
-  "Single Leg Wall Sit":"https://youtu.be/Znvr7AJjupo",
-  "Cable Pull Over":"https://youtu.be/wb6-ihu05kw",
-  "Inclined DB Bench Press":"https://youtu.be/MxG_BN2AWss",
-  "Cable Rowing Pass Through":"https://youtu.be/K01wxFoTQ_E",
+  "Back Squat":"https://youtu.be/q07Kvt54D4M","Single Leg Romanian Deadlift":"https://youtu.be/TUQVJR2q-hc",
+  "Suitcase Front Foot Elevated Split Squat":"https://youtu.be/CEz7kK-tX5w","2DB Bench Press":"https://youtu.be/trA_8Di43JA",
+  "Tractions pronation lestées":"https://youtu.be/-7DBf_IcXLo","Sorenson Hold":"https://youtu.be/gLOurD_cuRk",
+  "AB Wheel":"https://youtu.be/JCVjgFkXVZU","Deadlift":"https://youtu.be/F5TdTMctFRU","Weighted High Step Ups":"https://youtu.be/HCrJNO5yPz4",
+  "Strict Press":"https://youtu.be/eLbP-0hhxDs","Barbell Bent Over Row":"https://youtu.be/4INYT-ARPn8",
+  "Inclined DB Biceps Curl":"https://youtu.be/3devQJME7PM","Cable Triceps Extension":"https://youtu.be/bFsEuH8g5pY",
+  "Plate Rotation in a Split Squat":"https://youtu.be/zXKI0nvsJH8","Tuck Sit Knee Wiper":"https://youtu.be/LxmNNHo-PWE",
+  "Bench Press":"https://youtu.be/fsYTB35A7SM","Barbell Seal Row":"https://youtu.be/LcCX9gpkjv4",
+  "2DB Bulgarian Split Squat":"https://youtu.be/9QztbkS-am4","Copenhagen Plank":"https://youtu.be/-sFYO9yUWsY",
+  "Single Leg Banded Abduction":"https://youtu.be/TItA7Vh8RVo","Dips lestés":"https://youtu.be/C7Un30CxUfY",
+  "DB Lateral Raises":"https://youtu.be/AkYCCFtTS_I","Single Arm Farmer Carry":"https://youtu.be/WBkB6VS-ahk",
+  "Staggered KB Swing":"https://youtu.be/b6vL1tykAog","Back Rack Lunges":"https://youtu.be/OKOZWHfsyqk",
+  "DB Death March":"https://youtu.be/5AHbBqr3I94","Alternating Seated Pike Leg Lift":"https://youtu.be/EUx9jJaTjvE",
+  "Hanging L-Sit":"https://youtu.be/NmSQyt4pyM8","Weighted Crossover Step Over":"https://youtu.be/BdOXLbsxgN4",
+  "Arnold Press":"https://youtu.be/WN9XU25V130","Gorilla Row":"https://youtu.be/5MM_KBrIi60","DB Curl":"https://youtu.be/Z4StVcYTcFk",
+  "Overhead Dumbbell Triceps Extension":"https://youtu.be/mKahIBfyvEE","Split Stance PVC Anti Rotation":"https://youtu.be/3UiDaBORkRQ",
+  "Dragon Flag 4 sec Eccentric":"https://youtu.be/XfkJvuhqz-Y","Pendlay Row":"https://youtu.be/fIGYIOc3pOM",
+  "Single Leg Hip Thrust":"https://youtu.be/HZpkQ74DAFY","Goblet Cyclist Squat":"https://youtu.be/zr-yAmB2tJY",
+  "Monster Walk":"https://youtu.be/r7IuxHlTh3Y","Ring Dips lestés":"https://youtube.com/shorts/FdX_b3Pe2bU",
+  "DB Lateral + Frontal Raises":"https://youtu.be/eg_mqiERzF4","Single Arm KB Side Bend":"https://youtu.be/N4FMRGl1O44",
+  "Barbell Romanian Deadlift":"https://youtu.be/Pbb9tHEORoM","Ring Push Ups":"https://youtu.be/adK2WvGlx7w",
+  "DB Butterfly Chest Supported":"https://youtu.be/dO80zCsvZNk","MB Lateral Shot":"https://youtu.be/Dt9phLPGLqk",
+  "Heavy Farmer Carry":"https://youtu.be/XWle-Cb0ysc","Hip Thrust":"https://youtu.be/QDek9MudEBc",
+  "Cable Pull Behind The Neck":"https://youtu.be/qn-3lWmtz8o","Half Kneeling Landmine Press":"https://youtu.be/SFn7Aneuo50",
+  "Spider Curl":"https://youtu.be/jobHts7dqfI","Barbell Body Triceps Extension":"https://youtu.be/3Q6v-SwXxHU",
+  "Banded Pallof Walk Out":"https://youtu.be/OzmKd-D74d0","Cable Crunch":"https://youtu.be/QXZJBLDpX-E",
+  "Cable Horizontal Narrow Grip Pull":"https://youtu.be/7mh06UQVNRU","Eccentric Nordic Hamstring Curl":"https://youtu.be/nk7VdkQuhLo",
+  "Leg Extension":"https://www.youtube.com/shorts/iQ92TuvBqRo","Banded Clamshell":"https://youtu.be/3HEdtn-Fj98",
+  "Alternating DB See Saw Press":"https://youtu.be/3ipX32aXaFg","Low Cable Fly":"https://youtu.be/kMmdTn1_lWk",
+  "Lateral Star Plank":"https://youtu.be/xeDeY8PGB2E","Single Leg GHD Hip Extension":"https://youtu.be/v0Ycq9m1ILc",
+  "RNT Barbell Split Squat":"https://youtu.be/Z9MXfpkP6aI","Seated DB Complex Strict Press":"https://youtu.be/nPbjDsLqRwM",
+  "DB Three Point Row":"https://youtu.be/U3wcDSRMX5c","Lateral Plank Pulse":"https://youtu.be/JYAzdbBWxfI",
+  "Ring Body Saw":"https://youtu.be/z7XJ22GYzrY","Seated Wide Stance Good Morning":"https://youtu.be/s163h4Be1Jc",
+  "Upright Row":"https://youtu.be/xUayk3yYtiI","DB LU Raises":"https://youtu.be/LBlmcWzJqx0","Skull Crusher":"https://youtu.be/x-Ng39p2DrU",
+  "Barbell Curl 21's":"https://youtu.be/ne375uDM-Hg","Half Kneeling Chop And Lift":"https://youtu.be/qwl7rjNtXlg",
+  "L-Sit":"https://youtu.be/Lfuwf2yCQzw","Wide Grip Pull Ups or Cable Vertical Row":"https://youtu.be/r1KOddEVRmY",
+  "Sissy Squat":"https://youtu.be/sIimPA15aW0","Side Band Walk ou Machine Abductor":"https://youtube.com/shorts/B5r-BeqUzaw",
+  "Single Leg Wall Sit":"https://youtu.be/Znvr7AJjupo","Cable Pull Over":"https://youtu.be/wb6-ihu05kw",
+  "Inclined DB Bench Press":"https://youtu.be/MxG_BN2AWss","Cable Rowing Pass Through":"https://youtu.be/K01wxFoTQ_E",
 };
 
-// ---------- ÉTAT / STOCKAGE ----------
-const LS = "hs_log_v2";
-let LOG = JSON.parse(localStorage.getItem(LS) || "{}");
-let week = parseInt(localStorage.getItem("hs_week") || "1");
-let openSession = {}; // par semaine
+// ---------- CONSTANTES MÉTABOLISME (modifiables) ----------
+const BMR_BASE = 370;     // constante Katch-McArdle (standard = 370)
+const BMR_COEF = 21.6;    // coefficient de masse maigre
 
-function save(){ localStorage.setItem(LS, JSON.stringify(LOG)); }
+// ---------- STOCKAGE ----------
+const LS="hs_log_v2", PS="hs_profile_v1";
+let LOG = JSON.parse(localStorage.getItem(LS) || "{}");
+let PROFILE = JSON.parse(localStorage.getItem(PS) || "{}");
+let week = parseInt(localStorage.getItem("hs_week") || "1");
+let openSession = {};
+function saveLog(){ localStorage.setItem(LS, JSON.stringify(LOG)); }
+function saveProfile(){ localStorage.setItem(PS, JSON.stringify(PROFILE)); }
 function blockOf(w){ return Math.floor((w-1)/3); }
 
-// ---------- RENDU ----------
+// ---------- ONGLETS ----------
+function switchTab(t){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+t).classList.add("active");
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===t));
+  window.scrollTo(0,0);
+}
+
+// ---------- PROGRAMME ----------
 function renderWeeks(){
-  const el = document.getElementById("weeks");
-  el.innerHTML = "";
+  const el=document.getElementById("weeks"); el.innerHTML="";
   for(let w=1; w<=12; w++){
-    const d = document.createElement("div");
-    d.className = "wk" + (w===week?" active":"");
-    d.textContent = w;
-    // point vert si au moins un log rempli cette semaine
+    const d=document.createElement("div");
+    d.className="wk"+(w===week?" active":""); d.textContent=w;
     if(Object.keys(LOG).some(k=>k.startsWith("w"+w+"-") && LOG[k].trim())){
       const dot=document.createElement("span"); dot.className="dot"; d.appendChild(dot);
     }
-    d.onclick = ()=>{ week=w; localStorage.setItem("hs_week",w); render(); };
+    d.onclick=()=>{ week=w; localStorage.setItem("hs_week",w); renderProgramme(); };
     el.appendChild(d);
   }
 }
-
-function render(){
+function renderProgramme(){
   renderWeeks();
-  const bi = blockOf(week);
+  const bi=blockOf(week);
   document.getElementById("blockline").innerHTML =
-    "Bloc "+(bi+1)+" · Semaine "+week+" / 12 — <b style='color:#e6edf3'>Part 1 : "+BLOCK_INFO[bi].r+"</b>";
-  const sessions = BLOCKS[bi];
-  const app = document.getElementById("app");
-  app.innerHTML = "";
-  sessions.forEach((s, si)=>{
-    const isOpen = openSession[week] === si;
-    const card = document.createElement("div");
-    card.className = "session" + (isOpen?" open":"");
-    let html = `<div class="shead" data-s="${si}">
-        <div class="sbadge">S${si+1}</div>
-        <div class="stitle">Séance ${si+1} · ${s.title}<div class="ssub">${s.parts.length} parties</div></div>
-        <div class="chev">▶</div></div><div class="sbody">`;
-    s.parts.forEach((p, pi)=>{
-      html += `<div class="part"><div class="plabel">${p.label}</div>`;
-      html += `<div class="pmeta">${p.meta}${p.note?` · <span class="pnote">${p.note}</span>`:""}</div>`;
-      p.ex.forEach((e, ei)=>{
-        const name=e[0], target=e[1];
-        const key=`w${week}-s${si}-p${pi}-e${ei}`;
-        const val=(LOG[key]||"");
-        const yt = VIDEOS[name] || ("https://www.youtube.com/results?search_query="+encodeURIComponent(name+" exercise technique"));
-        html += `<div class="ex">
-          <div class="exhead">
-            <div class="exname">${name}<div class="extarget">${target}</div></div>
-            <a class="vid" href="${yt}" target="_blank" rel="noopener">🎥 Vidéo</a>
-          </div>
+    "Bloc "+(bi+1)+" · Semaine "+week+" / 12 — Part 1 : "+BLOCK_INFO[bi].r;
+  const sessions=BLOCKS[bi], app=document.getElementById("progContent"); app.innerHTML="";
+  sessions.forEach((s,si)=>{
+    const isOpen=openSession[week]===si;
+    const card=document.createElement("div"); card.className="session"+(isOpen?" open":"");
+    let html=`<div class="shead" data-s="${si}"><div class="sbadge">S${si+1}</div>
+      <div class="stitle">Séance ${si+1} · ${s.title}<div class="ssub">${s.parts.length} parties</div></div>
+      <div class="chev">›</div></div><div class="sbody">`;
+    s.parts.forEach((p,pi)=>{
+      html+=`<div class="part"><div class="plabel">${p.label}</div>`;
+      html+=`<div class="pmeta">${p.meta}${p.note?` · <span class="pnote">${p.note}</span>`:""}</div>`;
+      p.ex.forEach((e,ei)=>{
+        const name=e[0], target=e[1], key=`w${week}-s${si}-p${pi}-e${ei}`, val=(LOG[key]||"");
+        const yt=VIDEOS[name]||("https://www.youtube.com/results?search_query="+encodeURIComponent(name+" exercise technique"));
+        html+=`<div class="ex"><div class="exhead">
+          <div class="exname">${name}<div class="extarget">${target}</div></div>
+          <a class="vid" href="${yt}" target="_blank" rel="noopener">Vidéo ›</a></div>
           <textarea class="log ${val.trim()?"filled":""}" data-key="${key}"
-            placeholder="Ce que j'ai fait (charges, reps, sensations…)">${val.replace(/</g,"&lt;")}</textarea>
-        </div>`;
+            placeholder="Ce que j'ai fait (charges, reps, sensations…)">${val.replace(/</g,"&lt;")}</textarea></div>`;
       });
-      html += `</div>`;
+      html+=`</div>`;
     });
-    html += `</div>`;
-    card.innerHTML = html;
-    app.appendChild(card);
+    html+=`</div>`; card.innerHTML=html; app.appendChild(card);
   });
-
-  // événements
-  app.querySelectorAll(".shead").forEach(h=>{
-    h.onclick=()=>{ const si=+h.dataset.s;
-      openSession[week] = (openSession[week]===si)?null:si; render(); };
-  });
-  app.querySelectorAll(".log").forEach(t=>{
-    t.addEventListener("input", ()=>{
-      LOG[t.dataset.key]=t.value; save();
-      t.classList.toggle("filled", !!t.value.trim());
-    });
-  });
+  app.querySelectorAll(".shead").forEach(h=>h.onclick=()=>{
+    const si=+h.dataset.s; openSession[week]=(openSession[week]===si)?null:si; renderProgramme(); });
+  app.querySelectorAll(".log").forEach(t=>t.addEventListener("input",()=>{
+    LOG[t.dataset.key]=t.value; saveLog(); t.classList.toggle("filled",!!t.value.trim()); }));
 }
 
 function exportLog(){
   let out="HYPERTROPHY SYSTEM — Mon journal\n\n";
   for(let w=1; w<=12; w++){
     const bi=blockOf(w), sessions=BLOCKS[bi]; let wk="";
-    sessions.forEach((s,si)=>{
-      let ses="";
-      s.parts.forEach((p,pi)=>p.ex.forEach((e,ei)=>{
-        const v=LOG[`w${w}-s${si}-p${pi}-e${ei}`];
-        if(v && v.trim()) ses+=`  • ${e[0]} : ${v.trim()}\n`;
-      }));
-      if(ses) wk+=` Séance ${si+1} (${s.title})\n${ses}`;
-    });
+    sessions.forEach((s,si)=>{ let ses="";
+      s.parts.forEach((p,pi)=>p.ex.forEach((e,ei)=>{ const v=LOG[`w${w}-s${si}-p${pi}-e${ei}`];
+        if(v&&v.trim()) ses+=`  • ${e[0]} : ${v.trim()}\n`; }));
+      if(ses) wk+=` Séance ${si+1} (${s.title})\n${ses}`; });
     if(wk) out+=`=== SEMAINE ${w} ===\n${wk}\n`;
   }
   if(out.trim().endsWith("journal")) out+="(aucune entrée pour l'instant)\n";
-  const blob=new Blob([out],{type:"text/plain"});
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download="journal-hypertrophy.txt"; a.click();
+  a.href=URL.createObjectURL(new Blob([out],{type:"text/plain"})); a.download="journal-hypertrophy.txt"; a.click();
 }
-function toggleLegend(){
-  const b=document.getElementById("legendBox");
-  b.style.display = b.style.display==="none"?"block":"none";
+function toggleLegend(){ const b=document.getElementById("legendBox"); b.style.display=b.style.display==="none"?"block":"none"; }
+
+// ---------- PROFIL ----------
+const PF=["p_weight","p_bf","p_act","p_prot","p_lip","p_carb"];
+function num(id){ const raw=(PROFILE[id]||"").toString().replace(",","."); const v=parseFloat(raw); return isFinite(v)?v:null; }
+function loadProfile(){
+  PF.forEach(id=>{ const el=document.getElementById(id); if(PROFILE[id]!=null && PROFILE[id]!=="") el.value=PROFILE[id]; });
+  if(!PROFILE.p_act){ PROFILE.p_act="1.375"; } document.getElementById("p_act").value=PROFILE.p_act;
+}
+function renderProfile(){
+  const w=num("p_weight"), bf=num("p_bf"), act=num("p_act")||1.375;
+  const meta=document.getElementById("metaBox");
+  if(w==null || bf==null){
+    meta.innerHTML=`<div class="results empty"><div style="font-size:15px">Renseigne ton poids et ton taux de masse grasse pour voir ton métabolisme.</div></div>`;
+  } else {
+    const ffm = w*(1-bf/100);
+    const bmr = BMR_BASE + BMR_COEF*ffm;
+    const tdee = bmr*act;
+    meta.innerHTML=`<div class="results">
+      <div class="bigval"><span class="n">${Math.round(tdee)}</span><span class="u">kcal/j</span>
+        <span class="lbl">Maintenance (dépense totale)</span></div>
+      <div class="rgrid">
+        <div class="rcell"><div class="rv">${ffm.toFixed(1)} kg</div><div class="rk">Masse maigre (FFM)</div></div>
+        <div class="rcell"><div class="rv">${Math.round(bmr)} kcal</div><div class="rk">Métabolisme de base (BMR)</div></div>
+      </div></div>`;
+  }
+  // macros → kcal
+  const pr=num("p_prot"), li=num("p_lip"), ca=num("p_carb");
+  const mb=document.getElementById("macroBox");
+  if(pr==null && li==null && ca==null){ mb.innerHTML=""; }
+  else {
+    const kcal=(pr||0)*4+(ca||0)*4+(li||0)*9;
+    mb.innerHTML=`<div class="results" style="margin-top:4px">
+      <div class="bigval"><span class="n">${Math.round(kcal)}</span><span class="u">kcal/j</span>
+        <span class="lbl">Apport via tes macros</span></div>
+      <div class="rgrid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="rcell"><div class="rv">${pr!=null?pr+" g":"—"}</div><div class="rk">Protéines · ${Math.round((pr||0)*4)} kcal</div></div>
+        <div class="rcell"><div class="rv">${li!=null?li+" g":"—"}</div><div class="rk">Lipides · ${Math.round((li||0)*9)} kcal</div></div>
+        <div class="rcell"><div class="rv">${ca!=null?ca+" g":"—"}</div><div class="rk">Glucides · ${Math.round((ca||0)*4)} kcal</div></div>
+      </div></div>`;
+  }
+}
+function bindProfile(){
+  PF.forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener("input",()=>{ PROFILE[id]=el.value; saveProfile(); renderProfile(); });
+    el.addEventListener("change",()=>{ PROFILE[id]=el.value; saveProfile(); renderProfile(); });
+  });
 }
 
-render();
+// ---------- INIT ----------
+renderProgramme();
+loadProfile();
+bindProfile();
+renderProfile();
 </script>
 </body>
 </html>
