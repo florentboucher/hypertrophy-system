@@ -107,11 +107,13 @@
   .rcell .rk{font-size:11.5px; opacity:.75; margin-top:2px}
   .formula{font-size:12px; color:var(--dim); text-align:center; padding:2px 10px 6px; line-height:1.5}
 
-  /* Placeholder Nutrition */
-  .placeholder{text-align:center; padding:70px 20px; color:var(--dim)}
-  .placeholder svg{width:52px; height:52px; opacity:.35; margin-bottom:16px}
-  .placeholder h3{font-size:19px; font-weight:600; color:var(--txt); margin:0 0 6px}
-  .placeholder p{font-size:14px; margin:0; max-width:280px; margin:0 auto; line-height:1.5}
+  /* Nutrition */
+  .mealsel{display:flex; gap:8px}
+  .mealsel button{flex:1; padding:13px 0; border-radius:12px; border:1px solid var(--line2); background:var(--field);
+    color:var(--txt); font-size:16px; font-weight:600; font-family:inherit; cursor:pointer}
+  .mealsel button.on{background:var(--ink); color:var(--oninval); border-color:var(--ink)}
+  .mealhead{font-size:14px; font-weight:600}
+  .mealkcal{font-size:12.5px; color:var(--dim); margin-top:2px}
 
   /* Barre d'onglets */
   nav{position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; justify-content:space-around;
@@ -148,11 +150,39 @@
 <!-- ===== NUTRITION ===== -->
 <section class="view" id="view-nutri">
   <div class="ltitle">Nutrition</div>
-  <div class="placeholder">
-    <svg viewBox="0 0 24 24"><path d="M5 3v18M5 8h0M8 3v6a3 3 0 0 1-6 0V3M19 3c-1.5 0-3 2-3 6s1 5 3 5v7"/></svg>
-    <h3>Bientôt disponible</h3>
-    <p>Cet onglet accueillera le contenu nutrition. Tu me le préciseras à la prochaine étape.</p>
+  <div class="lsub">Tes macros du jour, réparties par repas.</div>
+
+  <div class="seclabel">Calories cibles</div>
+  <div class="card">
+    <div class="row">
+      <label>Calories / jour<span class="hint">Laisse vide = ta maintenance</span></label>
+      <div class="fieldwrap"><input id="n_kcal" type="number" inputmode="decimal"><span class="unit">kcal</span></div>
+    </div>
   </div>
+
+  <div class="seclabel">Répartition</div>
+  <div class="card">
+    <div class="row">
+      <label>Protéines<span class="hint">grammes par kg de poids</span></label>
+      <div class="fieldwrap"><input id="n_prot" type="number" inputmode="decimal" placeholder="2"><span class="unit">g/kg</span></div>
+    </div>
+    <div class="row">
+      <label>Lipides<span class="hint">grammes par kg de poids</span></label>
+      <div class="fieldwrap"><input id="n_lip" type="number" inputmode="decimal" placeholder="0,7"><span class="unit">g/kg</span></div>
+    </div>
+    <div class="row">
+      <label>Glucides<span class="hint">le reste des calories ÷ 4</span></label>
+      <div class="fieldwrap" style="color:var(--dim2); font-size:14px; font-weight:600">automatique</div>
+    </div>
+  </div>
+
+  <div class="seclabel">Nombre de repas</div>
+  <div class="card" style="padding:16px">
+    <div class="mealsel" id="mealSel"></div>
+  </div>
+
+  <div class="seclabel">Résultat</div>
+  <div id="nutriResults"></div>
 </section>
 
 <!-- ===== PROFIL ===== -->
@@ -186,24 +216,7 @@
 
   <div class="seclabel">Métabolisme</div>
   <div id="metaBox"></div>
-  <div class="formula">Katch-McArdle · Masse maigre = Poids × (1 − %MG) · BMR = 370 + 21,6 × masse maigre</div>
-
-  <div class="seclabel" style="margin-top:8px">Objectifs macronutriments</div>
-  <div class="card">
-    <div class="row">
-      <label>Protéines<span class="hint">par jour</span></label>
-      <div class="fieldwrap"><input id="p_prot" type="number" inputmode="decimal" placeholder="180"><span class="unit">g</span></div>
-    </div>
-    <div class="row">
-      <label>Lipides<span class="hint">par jour</span></label>
-      <div class="fieldwrap"><input id="p_lip" type="number" inputmode="decimal" placeholder="70"><span class="unit">g</span></div>
-    </div>
-    <div class="row">
-      <label>Glucides<span class="hint">par jour</span></label>
-      <div class="fieldwrap"><input id="p_carb" type="number" inputmode="decimal" placeholder="300"><span class="unit">g</span></div>
-    </div>
-  </div>
-  <div id="macroBox"></div>
+  <div class="formula">Katch-McArdle · Masse maigre = Poids × (1 − %MG) · BMR = 370 + 21,6 × masse maigre<br>Tes macros se règlent dans l'onglet <b>Nutrition</b>.</div>
 </section>
 
 <!-- ===== NAV ===== -->
@@ -396,13 +409,15 @@ const BMR_BASE = 370;     // constante Katch-McArdle (standard = 370)
 const BMR_COEF = 21.6;    // coefficient de masse maigre
 
 // ---------- STOCKAGE ----------
-const LS="hs_log_v2", PS="hs_profile_v1";
+const LS="hs_log_v2", PS="hs_profile_v1", NS="hs_nutri_v1";
 let LOG = JSON.parse(localStorage.getItem(LS) || "{}");
 let PROFILE = JSON.parse(localStorage.getItem(PS) || "{}");
+let NUTRI = JSON.parse(localStorage.getItem(NS) || "{}");
 let week = parseInt(localStorage.getItem("hs_week") || "1");
 let openSession = {};
 function saveLog(){ localStorage.setItem(LS, JSON.stringify(LOG)); }
 function saveProfile(){ localStorage.setItem(PS, JSON.stringify(PROFILE)); }
+function saveNutri(){ localStorage.setItem(NS, JSON.stringify(NUTRI)); }
 function blockOf(w){ return Math.floor((w-1)/3); }
 
 // ---------- ONGLETS ----------
@@ -411,6 +426,8 @@ function switchTab(t){
   document.getElementById("view-"+t).classList.add("active");
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===t));
   window.scrollTo(0,0);
+  if(t==='profil') renderProfile();
+  if(t==='nutri') renderNutrition();
 }
 
 // ---------- PROGRAMME ----------
@@ -477,58 +494,105 @@ function exportLog(){
 function toggleLegend(){ const b=document.getElementById("legendBox"); b.style.display=b.style.display==="none"?"block":"none"; }
 
 // ---------- PROFIL ----------
-const PF=["p_weight","p_bf","p_act","p_prot","p_lip","p_carb"];
-function num(id){ const raw=(PROFILE[id]||"").toString().replace(",","."); const v=parseFloat(raw); return isFinite(v)?v:null; }
+const PF=["p_weight","p_bf","p_act"];
+function numEl(id){ const el=document.getElementById(id); if(!el) return null; const v=parseFloat((el.value||"").toString().replace(",",".")); return isFinite(v)?v:null; }
+function computeMeta(){
+  const w=numEl("p_weight"), bf=numEl("p_bf"), act=numEl("p_act")||1.375;
+  if(w==null||bf==null) return {weight:w, ffm:null, bmr:null, tdee:null};
+  const ffm=w*(1-bf/100), bmr=BMR_BASE+BMR_COEF*ffm, tdee=bmr*act;
+  return {weight:w, ffm, bmr, tdee};
+}
 function loadProfile(){
   PF.forEach(id=>{ const el=document.getElementById(id); if(PROFILE[id]!=null && PROFILE[id]!=="") el.value=PROFILE[id]; });
   if(!PROFILE.p_act){ PROFILE.p_act="1.375"; } document.getElementById("p_act").value=PROFILE.p_act;
 }
 function renderProfile(){
-  const w=num("p_weight"), bf=num("p_bf"), act=num("p_act")||1.375;
-  const meta=document.getElementById("metaBox");
-  if(w==null || bf==null){
+  const m=computeMeta(), meta=document.getElementById("metaBox");
+  if(m.tdee==null){
     meta.innerHTML=`<div class="results empty"><div style="font-size:15px">Renseigne ton poids et ton taux de masse grasse pour voir ton métabolisme.</div></div>`;
   } else {
-    const ffm = w*(1-bf/100);
-    const bmr = BMR_BASE + BMR_COEF*ffm;
-    const tdee = bmr*act;
     meta.innerHTML=`<div class="results">
-      <div class="bigval"><span class="n">${Math.round(tdee)}</span><span class="u">kcal/j</span>
+      <div class="bigval"><span class="n">${Math.round(m.tdee)}</span><span class="u">kcal/j</span>
         <span class="lbl">Maintenance (dépense totale)</span></div>
       <div class="rgrid">
-        <div class="rcell"><div class="rv">${ffm.toFixed(1)} kg</div><div class="rk">Masse maigre (FFM)</div></div>
-        <div class="rcell"><div class="rv">${Math.round(bmr)} kcal</div><div class="rk">Métabolisme de base (BMR)</div></div>
-      </div></div>`;
-  }
-  // macros → kcal
-  const pr=num("p_prot"), li=num("p_lip"), ca=num("p_carb");
-  const mb=document.getElementById("macroBox");
-  if(pr==null && li==null && ca==null){ mb.innerHTML=""; }
-  else {
-    const kcal=(pr||0)*4+(ca||0)*4+(li||0)*9;
-    mb.innerHTML=`<div class="results" style="margin-top:4px">
-      <div class="bigval"><span class="n">${Math.round(kcal)}</span><span class="u">kcal/j</span>
-        <span class="lbl">Apport via tes macros</span></div>
-      <div class="rgrid" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="rcell"><div class="rv">${pr!=null?pr+" g":"—"}</div><div class="rk">Protéines · ${Math.round((pr||0)*4)} kcal</div></div>
-        <div class="rcell"><div class="rv">${li!=null?li+" g":"—"}</div><div class="rk">Lipides · ${Math.round((li||0)*9)} kcal</div></div>
-        <div class="rcell"><div class="rv">${ca!=null?ca+" g":"—"}</div><div class="rk">Glucides · ${Math.round((ca||0)*4)} kcal</div></div>
+        <div class="rcell"><div class="rv">${m.ffm.toFixed(1)} kg</div><div class="rk">Masse maigre (FFM)</div></div>
+        <div class="rcell"><div class="rv">${Math.round(m.bmr)} kcal</div><div class="rk">Métabolisme de base (BMR)</div></div>
       </div></div>`;
   }
 }
 function bindProfile(){
   PF.forEach(id=>{
     const el=document.getElementById(id);
-    el.addEventListener("input",()=>{ PROFILE[id]=el.value; saveProfile(); renderProfile(); });
-    el.addEventListener("change",()=>{ PROFILE[id]=el.value; saveProfile(); renderProfile(); });
+    const h=()=>{ PROFILE[id]=el.value; saveProfile(); renderProfile(); };
+    el.addEventListener("input",h); el.addEventListener("change",h);
   });
+}
+
+// ---------- NUTRITION ----------
+function loadNutri(){
+  if(NUTRI.kcal!=null) document.getElementById("n_kcal").value=NUTRI.kcal;
+  if(NUTRI.prot!=null) document.getElementById("n_prot").value=NUTRI.prot;
+  if(NUTRI.lip!=null) document.getElementById("n_lip").value=NUTRI.lip;
+  if(!NUTRI.meals) NUTRI.meals=3;
+}
+function bindNutri(){
+  [["n_kcal","kcal"],["n_prot","prot"],["n_lip","lip"]].forEach(function(p){
+    document.getElementById(p[0]).addEventListener("input",function(){ NUTRI[p[1]]=this.value; saveNutri(); renderNutrition(); });
+  });
+}
+function renderMealSel(){
+  const el=document.getElementById("mealSel"); if(!el) return; let h="";
+  for(let i=1;i<=6;i++) h+=`<button class="${NUTRI.meals===i?'on':''}" data-m="${i}">${i}</button>`;
+  el.innerHTML=h;
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>{ NUTRI.meals=+b.dataset.m; saveNutri(); renderNutrition(); });
+}
+function renderNutrition(){
+  const m=computeMeta();
+  const kcalEl=document.getElementById("n_kcal");
+  if(kcalEl) kcalEl.placeholder = m.tdee? Math.round(m.tdee).toString() : "maintenance";
+  renderMealSel();
+  const res=document.getElementById("nutriResults");
+  if(m.weight==null || m.tdee==null){
+    res.innerHTML=`<div class="results empty"><div style="font-size:15px">Renseigne d'abord ton <b>Profil</b> (poids, masse grasse, activité) — tes macros se calculent à partir de ta maintenance.</div></div>`;
+    return;
+  }
+  const weight=m.weight;
+  const setKcal=numEl("n_kcal");
+  const target=setKcal!=null?setKcal:m.tdee;
+  const prR=numEl("n_prot")!=null?numEl("n_prot"):2;
+  const liR=numEl("n_lip")!=null?numEl("n_lip"):0.7;
+  const protG=prR*weight, protK=protG*4;
+  const lipG=liR*weight, lipK=lipG*9;
+  let carbK=target-protK-lipK; const neg=carbK<0; if(neg) carbK=0;
+  const carbG=carbK/4;
+  const meals=NUTRI.meals||3;
+  const total=protK+lipK+carbK, kcalMeal=total/meals;
+  res.innerHTML=`
+   <div class="results">
+    <div class="bigval"><span class="n">${Math.round(total)}</span><span class="u">kcal/j</span>
+      <span class="lbl">${setKcal!=null?'Objectif saisi':'Ta maintenance'}</span></div>
+    <div class="rgrid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="rcell"><div class="rv">${Math.round(protG)} g</div><div class="rk">Protéines<br>${Math.round(protK)} kcal</div></div>
+      <div class="rcell"><div class="rv">${Math.round(lipG)} g</div><div class="rk">Lipides<br>${Math.round(lipK)} kcal</div></div>
+      <div class="rcell"><div class="rv">${Math.round(carbG)} g</div><div class="rk">Glucides<br>${Math.round(carbK)} kcal</div></div>
+    </div>
+   </div>
+   ${neg?`<div class="legend" style="margin-top:0">⚠︎ Protéines + lipides dépassent l'objectif calorique : glucides mis à 0. Baisse un ratio ou monte les calories.</div>`:''}
+   <div class="card" style="padding:16px; margin-top:4px">
+     <div class="mealhead">Par repas · ${meals} repas</div>
+     <div class="mealkcal">≈ ${Math.round(kcalMeal)} kcal par repas</div>
+     <div class="rgrid" style="grid-template-columns:1fr 1fr 1fr; margin-top:12px">
+       <div class="rcell"><div class="rv">${Math.round(protG/meals)} g</div><div class="rk">Protéines</div></div>
+       <div class="rcell"><div class="rv">${Math.round(lipG/meals)} g</div><div class="rk">Lipides</div></div>
+       <div class="rcell"><div class="rv">${Math.round(carbG/meals)} g</div><div class="rk">Glucides</div></div>
+     </div>
+   </div>`;
 }
 
 // ---------- INIT ----------
 renderProgramme();
-loadProfile();
-bindProfile();
-renderProfile();
+loadProfile(); bindProfile(); renderProfile();
+loadNutri(); bindNutri(); renderNutrition();
 </script>
 </body>
 </html>
